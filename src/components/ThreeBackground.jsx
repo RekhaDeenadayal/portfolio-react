@@ -1,12 +1,32 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-export default function ThreeBackground({ dark }) {
+export default function ThreeBackground({ T }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Parse theme hex colors → Three.js numbers
+    const toHex = str => parseInt(str.replace("#", ""), 16);
+    const isLight = parseInt(T.bg.replace("#",""), 16) > 0x888888;
+    const accentNum = toHex(T.accent);
+    const bgNum     = toHex(T.bg);
+
+    // Mesh face color: accent blended very dark against bg
+    const meshCol  = isLight ? toHex(T.bg1)   : blendHex(bgNum, accentNum, 0.18);
+    const edgeCol  = accentNum;
+    const edgeOpac = isLight ? 0.18 : 0.22;
+
+    function blendHex(a, b, t) {
+      const ar = (a >> 16) & 0xff, ag = (a >> 8) & 0xff, ab = a & 0xff;
+      const br = (b >> 16) & 0xff, bg = (b >> 8) & 0xff, bb = b & 0xff;
+      const r = Math.round(ar + (br - ar) * t);
+      const g = Math.round(ag + (bg - ag) * t);
+      const bv = Math.round(ab + (bb - ab) * t);
+      return (r << 16) | (g << 8) | bv;
+    }
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -16,12 +36,12 @@ export default function ThreeBackground({ dark }) {
     const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.z = 9;
 
-    // Lighting
-    scene.add(new THREE.AmbientLight(0xffffff, dark ? 0.25 : 0.45));
-    const key = new THREE.DirectionalLight(dark ? 0xffd580 : 0xffcc66, dark ? 0.9 : 0.7);
+    // Lighting tuned to theme accent
+    scene.add(new THREE.AmbientLight(0xffffff, isLight ? 0.2 : 0.12));
+    const key = new THREE.DirectionalLight(accentNum, isLight ? 0.35 : 0.45);
     key.position.set(5, 7, 4);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(dark ? 0x3a2a0a : 0xc8a87a, 0.35);
+    const fill = new THREE.DirectionalLight(accentNum, 0.1);
     fill.position.set(-5, -3, 2);
     scene.add(fill);
 
@@ -36,16 +56,12 @@ export default function ThreeBackground({ dark }) {
       { geo: new THREE.IcosahedronGeometry(0.7, 0), pos: [ 0.5,  5.0, -4.0], rot: [0.9, 0.6, 0.3], spd: 0.0035 },
     ];
 
-    const meshCol  = dark ? 0x2a1e08 : 0xcfb99a;
-    const edgeCol  = dark ? 0xc49a3c : 0x7a5c30;
-    const edgeOpac = dark ? 0.40     : 0.50;
-
     // Scene group — entire scene rotates with scroll
     const group = new THREE.Group();
     scene.add(group);
 
     const objects = cfgs.map(({ geo, pos, rot, spd }) => {
-      const mat  = new THREE.MeshPhongMaterial({ color: meshCol, flatShading: true, shininess: 12, specular: dark ? 0x7a5520 : 0xa07840 });
+      const mat  = new THREE.MeshPhongMaterial({ color: meshCol, flatShading: true, shininess: 12, specular: accentNum });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.add(new THREE.LineSegments(
         new THREE.EdgesGeometry(geo),
@@ -107,13 +123,14 @@ export default function ThreeBackground({ dark }) {
       window.removeEventListener("resize",    onResize);
       renderer.dispose();
     };
-  }, [dark]);
+  }, [T]);
 
   return (
     <canvas ref={canvasRef} style={{
       position:"fixed", top:0, left:0,
       width:"100%", height:"100%",
       zIndex:0, pointerEvents:"none",
+      opacity: 0.45,
     }}/>
   );
 }

@@ -8,19 +8,18 @@ if (!document.getElementById("rd-fonts")) {
   document.head.appendChild(l);
 }
 
-// ── THEMES ────────────────────────────────────────────────────────────────────
-export const DARK = {
-  bg:"#0C0B09", bg1:"#141210",
-  fg:"#EDE9E0", fgMid:"rgba(237,233,224,.45)", fgDim:"rgba(237,233,224,.18)",
-  border:"rgba(237,233,224,.07)", borderMid:"rgba(237,233,224,.13)",
-  accent:"#C49A3C", accentMid:"rgba(196,154,60,.08)", accentDim:"rgba(196,154,60,.05)",
-  navBg:"rgba(12,11,9,.95)",
+// ── THEME — dark warm brown, off-white text, beige accent ────────────────────
+export const THEME = {
+  bg:"#1A1410", bg1:"#241C14",
+  fg:"#FAF6EE", fgMid:"rgba(250,246,238,.60)", fgDim:"rgba(250,246,238,.30)",
+  border:"rgba(242,232,213,.09)", borderMid:"rgba(242,232,213,.15)",
+  accent:"#C9A87A", accentMid:"rgba(201,168,122,.09)", accentDim:"rgba(201,168,122,.05)",
+  navBg:"rgba(26,20,16,.96)",
+  accentHover:"#B8935F",
 };
 
-export const LIGHT = {
-  bg:"#F9F6F0", bg1:"#F0EBE2",
-  fg:"#100F0C", fgMid:"rgba(16,15,12,.45)", fgDim:"rgba(16,15,12,.18)",
-  border:"rgba(16,15,12,.07)", borderMid:"rgba(16,15,12,.13)",
-  accent:"#8B6014", accentMid:"rgba(139,96,20,.08)", accentDim:"rgba(139,96,20,.05)",
-  navBg:"rgba(249,246,240,.95)",
-};
+// aliases kept for any remaining imports
+export const WARM = THEME;
+export const FOREST = THEME;
+export const LIGHT = THEME;
+export const DARK = THEME;

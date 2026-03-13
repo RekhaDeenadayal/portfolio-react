@@ -1,12 +1,78 @@
 import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
-import { COFFEE_IMGS } from "../constants/data";
+
+// ── Animated coffee cup (pure SVG + CSS) ──────────────────────────────────────
+function CoffeeCup({ T }) {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", height:160, position:"relative" }}>
+      <style>{`
+        @keyframes rd-s1{0%,100%{transform:translateY(0) scaleX(1);opacity:.55}50%{transform:translateY(-20px) scaleX(1.4);opacity:0}}
+        @keyframes rd-s2{0%,100%{transform:translateY(0) scaleX(1);opacity:.4}50%{transform:translateY(-26px) scaleX(.8);opacity:0}}
+        @keyframes rd-s3{0%,100%{transform:translateY(0) scaleX(1);opacity:.5}50%{transform:translateY(-18px) scaleX(1.2);opacity:0}}
+        @keyframes rd-swirl{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+      `}</style>
+      {/* Steam wisps */}
+      <div style={{ position:"absolute", bottom:126, left:"50%", transform:"translateX(-50%)", display:"flex", gap:12 }}>
+        <span style={{ display:"block", width:2, height:22, borderRadius:2, background:T.accent, animation:"rd-s1 2.2s ease-in-out infinite" }}/>
+        <span style={{ display:"block", width:2, height:28, borderRadius:2, background:T.accent, animation:"rd-s2 2.6s ease-in-out infinite .35s" }}/>
+        <span style={{ display:"block", width:2, height:20, borderRadius:2, background:T.accent, animation:"rd-s3 2s ease-in-out infinite .7s" }}/>
+      </div>
+      {/* Cup SVG */}
+      <svg width="96" height="108" viewBox="0 0 96 108" fill="none">
+        {/* Saucer */}
+        <ellipse cx="48" cy="100" rx="38" ry="6" fill={T.bg1} stroke={T.accent} strokeWidth="1.2" opacity="0.7"/>
+        {/* Cup body */}
+        <path d="M18 24 L24 94 Q24 100 48 100 Q72 100 72 94 L78 24 Z" fill={T.bg1} stroke={T.accent} strokeWidth="1.5"/>
+        {/* Latte art — outer ring */}
+        <ellipse cx="48" cy="58" rx="20" ry="20" fill="none" stroke={T.accent} strokeWidth="1" opacity="0.45"/>
+        {/* Latte art — leaf swirl */}
+        <path d="M48 38 Q62 48 48 58 Q34 68 48 78" fill="none" stroke={T.accent} strokeWidth="1.2" opacity="0.7" strokeLinecap="round"/>
+        <path d="M48 38 Q56 52 48 58 Q40 64 48 78" fill="none" stroke={T.accent} strokeWidth="0.8" opacity="0.4" strokeLinecap="round"/>
+        {/* Handle */}
+        <path d="M72 38 Q86 38 86 56 Q86 74 72 74" fill="none" stroke={T.accent} strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    </div>
+  );
+}
+
+// ── Winding running path (SVG + animated dash) ────────────────────────────────
+function RunPath({ T }) {
+  return (
+    <div style={{ height:160, display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
+      <style>{`
+        @keyframes rd-dash { from { stroke-dashoffset: 320 } to { stroke-dashoffset: 0 } }
+        @keyframes rd-pulse { 0%,100%{r:3;opacity:.7} 50%{r:5;opacity:1} }
+      `}</style>
+      <svg width="260" height="80" viewBox="0 0 260 80" fill="none">
+        {/* Ghost path */}
+        <path d="M0 65 C30 65 30 20 65 20 C100 20 100 55 130 55 C160 55 160 15 195 15 C230 15 230 50 260 50"
+          stroke={T.border} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        {/* Animated accent path */}
+        <path d="M0 65 C30 65 30 20 65 20 C100 20 100 55 130 55 C160 55 160 15 195 15 C230 15 230 50 260 50"
+          stroke={T.accent} strokeWidth="1.5" fill="none" strokeLinecap="round"
+          strokeDasharray="320" style={{ animation:"rd-dash 3.5s ease-in-out infinite" }}/>
+        {/* Milestone dots */}
+        {[[0,65],[65,20],[130,55],[195,15],[260,50]].map(([x,y], i) => (
+          <circle key={i} cx={x} cy={y} r="3.5" fill={T.accent} opacity="0.6"
+            style={{ animation:`rd-pulse 2s ease-in-out infinite ${i * 0.4}s` }}/>
+        ))}
+        {/* Mile labels */}
+        {[["0",0,75],["10K",65,12],["HM",130,68],["30K",195,8],["42K",255,43]].map(([label,x,y]) => (
+          <text key={label} x={x} y={y} fill={T.fgDim}
+            style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"7px", letterSpacing:"0.06em" }}
+            textAnchor="middle">{label}</text>
+        ))}
+      </svg>
+    </div>
+  );
+}
 
 function InterestsContent({ T }) {
   return (
     <div style={{ animation:"rd-reveal-up .9s cubic-bezier(.16,1,.3,1) both" }}>
 
-      <div style={{ padding:"0 48px", marginBottom:72 }}>
+      {/* Header */}
+      <div style={{ padding:"0 48px", marginBottom:56 }}>
         <div style={{ display:"flex", alignItems:"center", gap:20 }}>
           <div style={{ flex:1, height:1, background:T.border }}/>
           <span style={{
@@ -17,100 +83,88 @@ function InterestsContent({ T }) {
         </div>
       </div>
 
-      {/* Coffee */}
-      <div style={{ borderTop:`1px solid ${T.border}`, borderBottom:`1px solid ${T.border}` }}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", minHeight:480 }}>
-          <div style={{
-            padding:"64px 48px",
-            borderRight:`1px solid ${T.border}`,
-            display:"flex", flexDirection:"column", justifyContent:"space-between",
-          }}>
-            <div style={{
-              fontFamily:"'DM Sans',sans-serif", fontSize:9, fontWeight:400,
-              letterSpacing:"0.22em", textTransform:"uppercase", color:T.accent, marginBottom:32,
-            }}>01 — Coffee</div>
-            <div>
-              <h3 style={{
-                fontFamily:"'Cormorant Garamond',serif",
-                fontSize:"clamp(36px,4vw,60px)",
-                fontWeight:300, fontStyle:"italic",
-                color:T.fg, margin:"0 0 28px",
-                letterSpacing:"-0.02em", lineHeight:1.0,
-              }}>Latte art &amp; the ritual of brewing.</h3>
-              <p style={{
-                fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:300,
-                color:T.fgMid, lineHeight:1.9, margin:0, maxWidth:380,
-              }}>
-                I make different types of coffees — lattes, pour-overs, flat whites.
-                The latte art is a work in progress. Each brew is slightly different
-                and that's exactly why it's interesting.
-              </p>
-            </div>
-            <div style={{
-              fontFamily:"'Cormorant Garamond',serif", fontSize:13, fontStyle:"italic",
-              color:T.fgDim, marginTop:40,
-            }}>Espresso · Latte · Pour-over · Flat white</div>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
-            {COFFEE_IMGS.map((src, i) => (
-              <div key={i} style={{ overflow:"hidden", background:T.bg1 }}>
-                <img
-                  src={src} alt={`coffee ${i+1}`}
-                  style={{
-                    width:"100%", height:"100%", objectFit:"cover", display:"block",
-                    filter:"grayscale(20%)", transition:"transform .6s ease",
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.transform="scale(1.04)"}
-                  onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
-                  onError={e => { e.currentTarget.parentElement.style.background = T.bg1; e.currentTarget.style.display="none"; }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Two compact cards side by side */}
+      <div style={{
+        display:"grid", gridTemplateColumns:"1fr 1fr",
+        borderTop:`1px solid ${T.border}`,
+        margin:"0 48px",
+      }}>
 
-      {/* Running */}
-      <div style={{ borderBottom:`1px solid ${T.border}` }}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", minHeight:320 }}>
+        {/* ── Coffee card ── */}
+        <div style={{
+          borderRight:`1px solid ${T.border}`,
+          padding:"48px 40px 52px",
+          display:"flex", flexDirection:"column", gap:28,
+        }}>
           <div style={{
-            borderRight:`1px solid ${T.border}`,
-            padding:"64px 48px",
-            display:"flex", flexDirection:"column", justifyContent:"space-between",
-          }}>
-            <div style={{
-              fontFamily:"'DM Sans',sans-serif", fontSize:9, fontWeight:400,
-              letterSpacing:"0.22em", textTransform:"uppercase", color:T.accent,
-            }}>02 — Running</div>
-            <div style={{
-              fontFamily:"'Cormorant Garamond',serif",
-              fontSize:"clamp(80px,10vw,140px)",
-              fontWeight:300, color:T.border,
-              lineHeight:1, letterSpacing:"-0.04em", userSelect:"none",
-            }}>26.2</div>
-          </div>
-          <div style={{
-            padding:"64px 48px",
-            display:"flex", flexDirection:"column", justifyContent:"center",
-          }}>
+            fontFamily:"'DM Sans',sans-serif", fontSize:9,
+            letterSpacing:"0.22em", textTransform:"uppercase", color:T.accent,
+          }}>01 — Coffee</div>
+
+          <CoffeeCup T={T} />
+
+          <div>
             <h3 style={{
               fontFamily:"'Cormorant Garamond',serif",
-              fontSize:"clamp(30px,3.5vw,50px)",
+              fontSize:"clamp(24px,2.8vw,40px)",
               fontWeight:300, fontStyle:"italic",
-              color:T.fg, margin:"0 0 24px",
+              color:T.fg, margin:"0 0 16px",
+              letterSpacing:"-0.02em", lineHeight:1.1,
+            }}>Latte art &amp; the ritual of brewing.</h3>
+            <p style={{
+              fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:300,
+              color:T.fgMid, lineHeight:1.85, margin:"0 0 20px",
+            }}>
+              Lattes, pour-overs, flat whites. Each brew is slightly different — that's exactly why it's interesting.
+            </p>
+            <div style={{
+              fontFamily:"'Cormorant Garamond',serif", fontSize:11, fontStyle:"italic",
+              color:T.fgDim, letterSpacing:"0.04em",
+            }}>Espresso · Latte · Pour-over · Flat white</div>
+          </div>
+        </div>
+
+        {/* ── Running card ── */}
+        <div style={{
+          padding:"48px 40px 52px",
+          display:"flex", flexDirection:"column", gap:28,
+        }}>
+          <div style={{
+            fontFamily:"'DM Sans',sans-serif", fontSize:9,
+            letterSpacing:"0.22em", textTransform:"uppercase", color:T.accent,
+          }}>02 — Running</div>
+
+          {/* Big number + path */}
+          <div style={{ position:"relative" }}>
+            <div style={{
+              fontFamily:"'Cormorant Garamond',serif",
+              fontSize:"clamp(64px,8vw,110px)",
+              fontWeight:300, color:T.border,
+              lineHeight:1, letterSpacing:"-0.04em",
+              userSelect:"none", marginBottom:8,
+            }}>26.2</div>
+            <RunPath T={T} />
+          </div>
+
+          <div>
+            <h3 style={{
+              fontFamily:"'Cormorant Garamond',serif",
+              fontSize:"clamp(24px,2.8vw,40px)",
+              fontWeight:300, fontStyle:"italic",
+              color:T.fg, margin:"0 0 16px",
               letterSpacing:"-0.02em", lineHeight:1.1,
             }}>Long distances, early mornings.</h3>
             <p style={{
-              fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:300,
-              color:T.fgMid, lineHeight:1.9, margin:0, maxWidth:380,
+              fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:300,
+              color:T.fgMid, lineHeight:1.85, margin:0,
             }}>
-              There's a particular kind of thinking that only happens at mile six.
-              The problems that feel stuck in front of a screen tend to untangle themselves
-              somewhere on a long road before sunrise.
+              The problems that feel stuck in front of a screen tend to untangle themselves somewhere on a long road before sunrise.
             </p>
           </div>
         </div>
       </div>
+
+      <div style={{ height:1, background:T.border, margin:"0 48px" }}/>
     </div>
   );
 }

@@ -28,8 +28,8 @@ export default function FitText({ children, T, italic=false, delay=0 }) {
   }, []);
 
   return (
-    <div ref={outer} style={{ width:"100%", overflow:"hidden" }}>
-      <div ref={clip} style={{ overflow:"hidden" }}>
+    <div ref={outer} style={{ width:"100%" }}>
+      <div ref={clip} style={{ paddingBottom:"0.25em" }}>
         <div ref={inner} style={{
           fontFamily:"'Cormorant Garamond',serif",
           fontWeight:300, fontStyle: italic ? "italic" : "normal",

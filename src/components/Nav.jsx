@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function Nav({ T, dark, setDark, active, onNavClick }) {
+export default function Nav({ T, active, onNavClick }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 60);
@@ -54,15 +54,6 @@ export default function Nav({ T, dark, setDark, active, onNavClick }) {
               </a>
             );
           })}
-          <button onClick={() => setDark(d => !d)} data-hover style={{
-            background:"none", border:`1px solid ${T.border}`,
-            padding:"4px 12px", cursor:"pointer",
-            color:T.fgDim, fontSize:10, fontFamily:"'DM Sans',sans-serif",
-            letterSpacing:"0.1em", textTransform:"uppercase", transition:"all .2s",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor=T.accent; e.currentTarget.style.color=T.accent; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor=T.border; e.currentTarget.style.color=T.fgDim; }}
-          >{dark?"Light":"Dark"}</button>
         </div>
       </div>
     </nav>

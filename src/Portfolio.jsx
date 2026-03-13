@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import Lenis from "lenis";
 
-import { DARK, LIGHT } from "./constants/themes";
+import { THEME } from "./constants/themes";
+const T = THEME;
 import GrainOverlay from "./components/GrainOverlay";
 import ThreeBackground from "./components/ThreeBackground";
 import Cursor from "./components/Cursor";
@@ -12,6 +13,7 @@ import Hero from "./components/Hero";
 import Projects from "./components/Projects";
 import Experience from "./components/Experience";
 import Skills from "./components/Skills";
+import About from "./components/About";
 import Interests from "./components/Interests";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
@@ -20,13 +22,10 @@ import Footer from "./components/Footer";
 const SECTION_LABELS = { work:"Work", experience:"Experience", skills:"Skills", contact:"Contact" };
 
 export default function Portfolio() {
-  const [dark, setDark]             = useState(true);
   const [intro, setIntro]           = useState(true);
   const [activeSection, setActive]  = useState(null);
-  // "idle" | "in" | "out"
   const [transPhase, setTransPhase] = useState("idle");
   const [transLabel, setTransLabel] = useState("");
-  const T = dark ? DARK : LIGHT;
 
   // Lenis smooth scroll
   useEffect(() => {
@@ -71,7 +70,7 @@ export default function Portfolio() {
     document.body.style.overflowX = "hidden";
     document.body.style.cursor = "none";
     return () => { document.body.style.cursor = ""; };
-  }, [T.bg]);
+  }, []);
 
   // Curtain transform per phase
   const curtainTransform =
@@ -91,7 +90,7 @@ export default function Portfolio() {
         @keyframes rd-blink { 0%,100%{opacity:1} 50%{opacity:0} }
       `}</style>
 
-      <ThreeBackground dark={dark} />
+      <ThreeBackground T={T} />
       <GrainOverlay />
       <ScrollProgress T={T} />
       <Cursor />
@@ -99,7 +98,7 @@ export default function Portfolio() {
       {/* Section-to-section curtain */}
       <div style={{
         position:"fixed", inset:0, zIndex:7000,
-        background:"#0C0B09",
+        background: T.bg,
         transform: curtainTransform,
         transition: curtainTransition,
         pointerEvents: transPhase === "idle" ? "none" : "auto",
@@ -117,12 +116,13 @@ export default function Portfolio() {
       </div>
 
       {intro && <Intro onDone={() => setIntro(false)} />}
-      <Nav T={T} dark={dark} setDark={setDark} active={activeSection} onNavClick={onNavClick} />
+      <Nav T={T} active={activeSection} onNavClick={onNavClick} />
       <div style={{ position:"relative", zIndex:2 }}>
         <Hero T={T} />
-        <Projects T={T} />
+        <About T={T} />
         <Experience T={T} />
         <Skills T={T} />
+        <Projects T={T} />
         <Interests T={T} />
         <Contact T={T} />
       </div>
