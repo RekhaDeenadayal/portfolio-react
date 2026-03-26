@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import { EXPERIENCE } from "../constants/data";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 // ── Card content ──────────────────────────────────────────────────────────────
-function ExperienceCard({ T, ex }) {
+function ExperienceCard({ T, ex, isMobile }) {
   return (
     <div style={{
       background: T.bg1,
       border: `1px solid ${T.border}`,
-      padding: "52px 56px",
+      padding: isMobile ? "28px 24px" : "52px 56px",
       boxShadow: `0 12px 48px ${T.bg}99`,
       willChange: "transform",
     }}>
@@ -72,6 +73,7 @@ export default function Experience({ T }) {
   const cardRefs   = useRef([]);
   const dotRefs    = useRef([]);
   const N = EXPERIENCE.length;
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -147,7 +149,7 @@ export default function Experience({ T }) {
       <div style={{
         position: "sticky", top: 0, height: "100vh",
         display: "flex", flexDirection: "column",
-        justifyContent: "center", padding: "0 48px",
+        justifyContent: "center", padding: isMobile ? "0 24px" : "0 48px",
         overflow: "hidden",
       }}>
 
@@ -200,7 +202,7 @@ export default function Experience({ T }) {
                 zIndex: String(Math.max(0, 9 - i)),
               }}
             >
-              <ExperienceCard T={T} ex={ex} />
+              <ExperienceCard T={T} ex={ex} isMobile={isMobile} />
             </div>
           ))}
         </div>
